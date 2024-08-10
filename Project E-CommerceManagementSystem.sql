@@ -71,7 +71,7 @@ FOREIGN KEY(CategoryId)REFERENCES Categories(CategoryId),
 Createdat DATETIME DEFAULT GETDATE()NOT NULL
 )
 GO
---RENAME TABLE NAME--
+--RENAME TABLE Column NAME--
 EXEC sp_rename'Products.Name','ProductName','COLUMN'
 GO
 INSERT INTO Products
