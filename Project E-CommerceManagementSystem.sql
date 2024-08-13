@@ -310,6 +310,112 @@ SELECT Userid,Rating
 FROM Reviews
 SELECT * FROM V_Review
 GO
+--view with encrption--
+CREATE VIEW V_TRAINEE
+WITH ENCRYPTION
+AS 
+SELECT UserId,Rating
+FROM dbo.Reviews
+GO
+SELECT * FROM V_TRAINEE
+GO
+--view with encrption and schemabinding--
+CREATE VIEW V_loger
+WITH ENCRYPTION,SCHEMABINDING
+AS 
+SELECT UserId,Rating
+FROM dbo.Reviews
+GO
+SELECT * FROM V_loger
+GO
+--CHECK ENCRYPT AND SCHEMABINDING--
+EXEC sp_helptext 'V_loger'
+GO
+--SP with Output IN Products Table--
+CREATE PROCEDURE SP_IN
+(@ProductId INT OUTPUT)
+AS
+SELECT COUNT(@ProductId)
+FROM Products
+EXECUTE SP_IN 1
+GO
+--SP WITH RETURN IN Product Table--
+CREATE PROCEDURE SP_Returns
+(@ProductId INT)
+AS
+SELECT ProductId,ProductName FROM Products
+WHERE ProductId=@ProductId
+GO
+--EXECUTE QUERY--
+DECLARE @Return_Value INT
+EXECUTE @Return_Value=SP_Returns @ProductId=2 
+GO
+---use SP WITH INSERT UPDATE DELETE TRANSACTION--
+CREATE PROCEDURE SP_Category
+(@CategoryId INT,
+@CategoryName VARCHAR(30),
+@StatementType VARCHAR(100))
+AS
+IF @StatementType='SELECT'
+BEGIN
+SELECT * FROM Categories
+END
+IF @StatementType='INSERT'
+BEGIN
+INSERT INTO Categories(CategoryId,CategoryName)
+VALUES(@CategoryId,@CategoryName)
+END
+IF @StatementType='UPDATE'
+BEGIN
+UPDATE Categories
+SET CategoryName=@CategoryName WHERE CategoryId=@CategoryId
+END
+IF @StatementType='DELETE'
+BEGIN
+DELETE Categories
+WHERE CategoryId=@CategoryId
+END
+EXEC SP_Category '11','Sports','INSERT'
+EXEC SP_Category '11','Sports','SELECT'
+EXEC SP_Category '8','Cosmetics','UPDATE'
+GO
+--TRIGGER WITH RAISE ERROR TRANSACTION--
+
+CREATE TABLE AccountlogIN
+(
+logID INT IDENTITY(1,1),
+CategoryId INT,
+CategoryName VARCHAR(100)
+)
+GO
+CREATE TRIGGER Tr_Categories
+ON Categories
+INSTEAD OF DELETE
+AS
+BEGIN
+DECLARE @CategoryId INT
+SELECT @CategoryId=DELETED.CategoryId FROM DELETED
+IF @CategoryId=1
+BEGIN
+RAISERROR
+('Deleted not granted by owner',16,1)
+ROLLBACK
+INSERT INTO AccountlogIN
+VALUES (@CategoryId,'INVALID')
+END
+ELSE
+BEGIN
+DELETE Categories
+WHERE @CategoryId=CategoryId
+INSERT INTO Categories
+VALUES(@CategoryId,'DELETE')
+END
+END
+DELETE Categories
+WHERE CategoryId=1
+GO
+SELECT * FROM AccountlogIN
+GO
 ---READ ALL
 SELECT * FROM Categories
 GO
@@ -323,7 +429,7 @@ SELECT * FROM Reviews
 GO
 SELECT * FROM Users
 GO
----PROJECT E_CommerceManagementSystem COMPLETE--
+--PROJECT E_COMMERCE MANAGEMENT SYTEM  DONE--
 
 
 
