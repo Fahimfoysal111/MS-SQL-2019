@@ -379,7 +379,7 @@ EXEC SP_Category '11','Sports','INSERT'
 EXEC SP_Category '11','Sports','SELECT'
 EXEC SP_Category '8','Cosmetics','UPDATE'
 GO
---TRIGGER WITH RAISE ERROR TRANSACTION--
+--TRIGGER WITH RAISEERROR IN Categories Table --
 
 CREATE TABLE AccountlogIN
 (
